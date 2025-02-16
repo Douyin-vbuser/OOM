@@ -41,12 +41,12 @@ jobs:
           ZIP_FILE="database_$TIMESTAMP.zip"
           zip -r $ZIP_FILE $DB_FOLDER
           
-          # 7. 发布 Release 到现有的 `data` 标签
-          - name: Publish Release
-            uses: softprops/action-gh-release@v1
-            with:
-              tag_name: "data"  # 使用现有的 `data` 标签
-              files: database_$TIMESTAMP.zip
-              generate_release_notes: true
-            env:
-              GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # 7. 发布 Release 到现有的 `data` 标签
+      - name: Publish Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: "data"  # 使用现有的 `data` 标签
+          files: database_$TIMESTAMP.zip
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
