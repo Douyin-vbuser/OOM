@@ -7,12 +7,16 @@ on:
 
 jobs:
   run-main:
-    runs-on: ubuntu-latest  # 使用 Ubuntu 最新版本
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # 授予写入权限
 
     steps:
       # 1. 检出代码
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          persist-credentials: true  # 确保后续步骤可以使用相同的认证信息
 
       # 2. 设置 JDK 8
       - name: Set up JDK 8
@@ -39,9 +43,22 @@ jobs:
         run: |
           DB_FOLDER="$TIMESTAMP"
           ZIP_FILE="database_$TIMESTAMP.zip"
+          echo "DB_FOLDER: $DB_FOLDER"
+          echo "ZIP_FILE: $ZIP_FILE"
+          ls -la  # 列出当前目录的文件，用于调试
           zip -r $ZIP_FILE $DB_FOLDER
-          
-      # 7. 发布 Release 到现有的 `data` 标签
+          ls -la  # 列出生成的文件，确保 ZIP 文件存在
+
+      # 7. 确保 `data` 标签存在
+      - name: Ensure 'data' tag exists
+        run: |
+          git fetch --tags
+          if ! git rev-parse -q --verify "refs/tags/data" > /dev/null; then
+            git tag data
+            git push origin data
+          fi
+
+      # 8. 发布 Release 到现有的 `data` 标签
       - name: Publish Release
         uses: softprops/action-gh-release@v1
         with:
