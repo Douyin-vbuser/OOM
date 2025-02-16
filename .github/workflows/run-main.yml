@@ -62,8 +62,8 @@ jobs:
       - name: Publish Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: "data"  # 使用现有的 `data` 标签
-          files: database_$TIMESTAMP.zip
+          tag_name: "data"
+          files: database_${{ env.TIMESTAMP }}.zip  # 正确引用环境变量
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
