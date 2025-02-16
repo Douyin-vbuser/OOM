@@ -1,0 +1,23 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group = 'com.vbuser.cr'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'com.squareup.okhttp3:okhttp:4.9.1'
+    implementation 'org.json:json:20210307'
+}
+
+application {
+    mainClass = 'com.vbuser.cr.Main'
+    applicationDefaultJvmArgs = [
+            "-Dtimestamp=${project.findProperty('timestamp') ?: System.currentTimeMillis()}"
+    ]
+}

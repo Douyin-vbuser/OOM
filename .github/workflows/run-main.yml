@@ -1,0 +1,52 @@
+name: Run Main Method and Publish Release
+
+on:
+  schedule:
+    - cron: '0 * * * *'  # 每小时的第 0 分钟执行一次（整点执行）
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  run-main:
+    runs-on: ubuntu-latest  # 使用 Ubuntu 最新版本
+
+    steps:
+      # 1. 检出代码
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 2. 设置 JDK 8
+      - name: Set up JDK 8
+        uses: actions/setup-java@v3
+        with:
+          java-version: '8'
+          distribution: 'temurin'  # 使用 Eclipse Temurin 的 JDK 8
+
+      # 3. 赋予 gradlew 执行权限
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      # 4. 生成时间戳
+      - name: Generate timestamp
+        id: timestamp
+        run: echo "TIMESTAMP=$(date +%s)" >> $GITHUB_ENV
+
+      # 5. 运行 Gradle 任务，传递时间戳
+      - name: Run Main Method
+        run: ./gradlew run -PmainClass=com.vbuser.cr.Main -Ptimestamp=$TIMESTAMP
+
+      # 6. 打包数据库文件
+      - name: Package database
+        run: |
+          DB_FOLDER="$TIMESTAMP"
+          ZIP_FILE="database_$TIMESTAMP.zip"
+          zip -r $ZIP_FILE $DB_FOLDER
+          
+          # 7. 发布 Release 到现有的 `data` 标签
+          - name: Publish Release
+            uses: softprops/action-gh-release@v1
+            with:
+              tag_name: "data"  # 使用现有的 `data` 标签
+              files: database_$TIMESTAMP.zip
+              generate_release_notes: true
+            env:
+              GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
